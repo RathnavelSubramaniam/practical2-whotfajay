@@ -1,0 +1,37 @@
+name: Autograding Tests
+'on':
+- push
+- repository_dispatch
+permissions:
+  checks: write
+  actions: read
+  contents: read
+jobs:
+  run-autograding-tests:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-classroom[bot]'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: practical2
+      id: practical2
+      uses: classroom-resources/autograding-io-grader@v1
+      with:
+        test-name: practical2
+        setup-command: javac practical2.java
+        command: java practical2
+        input: ''
+        expected-output: |-
+          Caught: This is ExceptionA
+          Caught: This is ExceptionB
+          Caught: This is an IOException
+          Caught: null
+        comparison-method: contains
+        timeout: 10
+        max-score: 10
+    - name: Autograding Reporter
+      uses: classroom-resources/autograding-grading-reporter@v1
+      env:
+        PRACTICAL2_RESULTS: "${{steps.practical2.outputs.result}}"
+      with:
+        runners: practical2
